@@ -8,52 +8,65 @@ const readline     = require('readline');
 const ipRangeCheck = require("ip-range-check");
 const pretty       = require('prettysize');
 
-var file ='aws-flow-log.log.gz'
+const FLOWLOGS_PATH = process.env.FLOWLOGS_PATH;
+const AWS_CIDR = process.env.AWS_CIDR;
 
-let lineReader = readline.createInterface({
-    input: fs.createReadStream('flowlogs/' + file)
-        .pipe(zlib.createGunzip())
+let total_datatransferOut = [];
+
+fs.readdir(FLOWLOGS_PATH, (err, files) => {
+    files.forEach(file => {
+        main_handler(file);
+    });
 });
 
-let line_count = 0;
-let i = 0;
-let bytes  = [];
-let datatransferOut=[];
+function main_handler( file_name ) {
 
-lineReader.on('line', (line) => {
+    let lineReader = readline.createInterface({
+        input: fs.createReadStream(FLOWLOGS_PATH + '/' + file_name)
+            .pipe(zlib.createGunzip())
+    });
 
-    //skip headers csv
-    if (0 == line_count ){
-        line_count = line_count + 1;
-        return;
-    }
+    let line_count = 0;
+    let i = 0;
+    let bytes  = [];
+    let datatransferOut=[];
 
-    var parsed = parser(line.toString('utf8')); 
-    
-    //check if is comming from ours servers
-    if (!ipRangeCheck(parsed['srcaddr'], process.env.AWS_CIDR) ){
-        return;
-    }
+    lineReader.on('line', (line) => {
 
-    // checking if is data transfer out 
-    if ( ipRangeCheck(parsed['dstaddr'], process.env.AWS_CIDR)) {
-        return;
-    }
+        //skip headers csv
+        if (0 == line_count ){
+            line_count = line_count + 1;
+            return;
+        }
 
-    if (typeof bytes[parsed['srcaddr']] === 'undefined' ){
-        bytes[parsed['srcaddr']] = [];
-     }
-    
-    bytes[parsed['srcaddr']][i] = parsed['byte'];
-    
-    line_count++;
-    i++;
-}).on('close', function (){
+        var parsed = parser(line.toString('utf8')); 
+        
+        //check if is comming from ours servers
+        if (!ipRangeCheck(parsed['srcaddr'], AWS_CIDR) ){
+            return;
+        }
 
-    for (const [key, value] of Object.entries(bytes)) {
-        const sum = value.reduce((partial_sum, a) => parseInt(partial_sum) + parseInt(a));
-        datatransferOut[key] = pretty( sum );
-    }
+        // checking if is data transfer out 
+        if (ipRangeCheck(parsed['dstaddr'], AWS_CIDR)) {
+            return;
+        }
 
-    console.log(datatransferOut);
-});
+        if (typeof bytes[parsed['srcaddr']] === 'undefined' ){
+            bytes[parsed['srcaddr']] = [];
+        }
+        
+        bytes[parsed['srcaddr']][i] = parsed['byte'];
+        
+        line_count++;
+        i++;
+    }).on('close', function (){
+
+        for (const [key, value] of Object.entries(bytes)) {
+            const sum = value.reduce((partial_sum, a) => parseInt(partial_sum) + parseInt(a));
+            datatransferOut[key] = pretty( sum );
+        }
+
+        console.log(datatransferOut);
+    });
+
+}
