@@ -20,5 +20,11 @@
   "bugs": {
     "url": "https://github.com/mesaque/aws-flowlogs/issues"
   },
-  "homepage": "https://github.com/mesaque/aws-flowlogs#readme"
+  "homepage": "https://github.com/mesaque/aws-flowlogs#readme",
+  "dependencies": {
+    "dotenv": "^7.0.0",
+    "ip-range-check": "0.0.2",
+    "prettysize": "^2.0.0",
+    "vpc-flow-log-parser": "0.0.3"
+  }
 }
