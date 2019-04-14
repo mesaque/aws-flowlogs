@@ -5,7 +5,7 @@ const fs           = require('fs');
 const zlib         = require('zlib');
 const parser       = require('vpc-flow-log-parser');
 const readline     = require('readline');
-const ipRangeCheck = require("ip-range-check");
+const ipRangeCheck = require('ip-range-check');
 const pretty       = require('prettysize');
 
 const FLOWLOGS_PATH = process.env.FLOWLOGS_PATH;
@@ -29,7 +29,7 @@ function main_handler( file_name ) {
     let line_count = 0;
     let i = 0;
     let bytes  = [];
-    let datatransferOut=[];
+    let datatransferOut={};
 
     lineReader.on('line', (line) => {
 
@@ -63,10 +63,11 @@ function main_handler( file_name ) {
 
         for (const [key, value] of Object.entries(bytes)) {
             const sum = value.reduce((partial_sum, a) => parseInt(partial_sum) + parseInt(a));
-            datatransferOut[key] = pretty( sum );
+            //datatransferOut[key] = pretty( sum );
+            datatransferOut[key] = sum;
         }
 
-        console.log(datatransferOut);
+        console.log(JSON.stringify(datatransferOut) );
     });
 
 }
