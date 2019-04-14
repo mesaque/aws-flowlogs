@@ -1,0 +1,24 @@
+{
+  "name": "aws-flowlogs",
+  "version": "1.0.0",
+  "description": "we intend to have a simple way to read aws flow logs by domain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mesaque/aws-flowlogs.git"
+  },
+  "keywords": [
+    "aws",
+    "flowlogs",
+    "node"
+  ],
+  "author": "Mesaque Silva",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mesaque/aws-flowlogs/issues"
+  },
+  "homepage": "https://github.com/mesaque/aws-flowlogs#readme"
+}
