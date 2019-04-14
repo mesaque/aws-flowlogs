@@ -9,9 +9,7 @@ const ipRangeCheck = require('ip-range-check');
 const pretty       = require('prettysize');
 
 const FLOWLOGS_PATH = process.env.FLOWLOGS_PATH;
-const AWS_CIDR = process.env.AWS_CIDR;
-
-let total_datatransferOut = [];
+const AWS_CIDR      = process.env.AWS_CIDR;
 
 fs.readdir(FLOWLOGS_PATH, (err, files) => {
     files.forEach(file => {
@@ -22,7 +20,7 @@ fs.readdir(FLOWLOGS_PATH, (err, files) => {
 function main_handler( file_name ) {
 
     let lineReader = readline.createInterface({
-        input: fs.createReadStream(FLOWLOGS_PATH + '/' + file_name)
+        input: fs.createReadStream( FLOWLOGS_PATH + '/' + file_name )
             .pipe(zlib.createGunzip())
     });
 
@@ -59,15 +57,14 @@ function main_handler( file_name ) {
         
         line_count++;
         i++;
+
     }).on('close', function (){
 
         for (const [key, value] of Object.entries(bytes)) {
-            const sum = value.reduce((partial_sum, a) => parseInt(partial_sum) + parseInt(a));
-            //datatransferOut[key] = pretty( sum );
+            var sum = value.reduce((partial_sum, a) => parseInt(partial_sum) + parseInt(a));
             datatransferOut[key] = sum;
         }
+        console.log( JSON.stringify( datatransferOut ) );
 
-        console.log(JSON.stringify(datatransferOut) );
     });
-
 }
